@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Maritime Parser",
+  "version": "1.0",
+  "description": "Parse Maritime page content and export to CSV.",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://maritime.tideworks.io/*"],
+      "js": ["src/content.js", "src/popup.js"]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "webNavigation",
+    "downloads"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/csvExport.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
