@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
         },
       });
     });
-  });
+  }
+  );
 
     saveButton.addEventListener('click', function () {
     // Send a message to background.js
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.action === 'updateRecordCount') {
             const newCount = request.count;
-            recordCountLabel.textContent = `${newCount} Records`;
+            recordCountLabel.style.cssText = `--num:${newCount};`;
         }
     });
 });

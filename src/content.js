@@ -3,6 +3,8 @@
 function parseMaritimePage() {
  // Add an event listener for when the popup is opened
      const entryDivs = document.querySelectorAll(".timecard_card");
+     const collectButton = document.getElementById('collectData');
+     
      entryDivs.forEach((entryDiv) => {
          // Find elements within the entryDiv to extract data
          const jiraElement = entryDiv.querySelector("a");
@@ -27,8 +29,7 @@ function parseMaritimePage() {
 
             // Send the data object as a message to background.js
             chrome.runtime.sendMessage({ action: 'sendData', data: data });
-            console.log('Message sent to background.js', data);
-
+            console.log('Message Message sent to background.js', data);
          } else {
              console.log("Could not find one or more required elements within the entryDiv.");
          }

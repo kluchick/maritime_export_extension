@@ -6,13 +6,21 @@
         <title>Popup</title>
         <link rel="stylesheet" href="popup.css">
     </head>
-        <body>
-        <h1>Maritime2Ets Extensions</h1>
-        <div class="button-wrapper">
-            <button class="fancy-button" id="collectData">Collect data</button>
-            <label id="recordCount">0 Records</label>
+    <body>
+        <div class="title-wrapper">
+            <div class="from-to-icons-wrapper">
+                <img class="from-to-icon" src="images/maritime.ico" alt="maritime icon">
+                <label class="from-to-chevron" for="">>></label>
+                <img class="from-to-icon" src="images/akvelon.ico" alt="akvelon icon">
+            </div>
+            <label class="title">Maritime2Ets</label>
         </div>
-        <div>
+        <div class="buttons-wrapper">
+            <button class="fancy-button" id="collectData">Collect data</button>
+            <div class="count-wrapper">
+                <label id="recordCount"></label>
+                <label>Records found</label>
+            </div>
             <button class="fancy-button" id="saveData">Export data</button>
         </div>
         <script src="src/popup.js"></script>
