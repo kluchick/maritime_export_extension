@@ -60,6 +60,10 @@ body {
     margin-bottom: 10px;
 }
 
+.inactive {
+    background-color: gray;
+}
+
 .count-wrapper {
     display: flex;
     align-items: center;
@@ -71,22 +75,6 @@ body {
 #recordCount {
     color: red;
     margin-right: 10px; 
+    font: 800 40px sans-serif;
 }
-
-/*  */
-@property --num {
-    syntax: "<integer>";
-    initial-value: 0;
-    inherits: false;
-}
-
-#recordCount {
-    transition: --num 0.3s;
-    counter-set: num var(--num);
-    font: 800 40px system-ui;
-}
-#recordCount::after {
-    content: counter(num);
-}
-
 /* Add more styles as needed */

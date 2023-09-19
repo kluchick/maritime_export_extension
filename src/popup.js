@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const saveButton = document.getElementById('saveData');
   const recordCountLabel = document.getElementById('recordCount');
 
+  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(request.action === 'updateRecordCount') {
+      const newCount = request.count;
+      recordCountLabel.textContent = `${newCount}`;
+    }
+  });
+
+  chrome.runtime.sendMessage({ action: 'popupLoaded' });
+
   collectButton.addEventListener('click', function () {
     // Send a message to content.js
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -20,16 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   );
 
-    saveButton.addEventListener('click', function () {
+  saveButton.addEventListener('click', function () {
     // Send a message to background.js
     chrome.runtime.sendMessage({ action: 'saveData' });
-    });
-
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        if (request.action === 'updateRecordCount') {
-            const newCount = request.count;
-            recordCountLabel.style.cssText = `--num:${newCount};`;
-        }
-    });
+  });
 });
 
