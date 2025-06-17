@@ -24,23 +24,43 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 function saveData(data) {
-  // var csv = 'Time Spent \t Jira Item \t Entered Date\n';
-  var csv ='';
+  // Add BOM for UTF-8 to ensure Excel recognizes encoding properly
+  var csv = '\uFEFF';
+  // Use semicolons for better Excel compatibility (especially non-US regions)
+  csv += 'Time Spent;Jira Item;Entered Date\n';
+  
   data.forEach(function(row) {
-    csv += row.timeSpent + '\t' + row.jiraItem + ' ' + row.description + '\t' + row.enteredDate + "\n";
+    // Escape CSV fields that contain semicolons or quotes
+    const timeSpent = escapeCSVField(row.timeSpent);
+    const jiraItem = escapeCSVField(row.jiraItem + ' ' + row.description);
+    const enteredDate = escapeCSVField(row.enteredDate);
+    
+    csv += timeSpent + ';' + jiraItem + ';' + enteredDate + "\n";
   });
+  
   console.log("CSV file is:",csv);
-    // Create a Blob containing the CSV data
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const filename = 'maritime_export.csv';
-    const url = chrome.runtime.getURL(filename);
-    const dataURI = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  
+  // Create a Blob containing the CSV data
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const filename = 'maritime_export.csv';
+  const dataURI = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
 
   chrome.downloads.download({
     url: dataURI,
     filename: filename,
     saveAs: true,
-    conflictAction: 'uniquify', // To ensure a unique filename
+    conflictAction: 'uniquify',
   });
+}
+
+function escapeCSVField(field) {
+  if (needsEscaping(field)) {
+    return '"' + field.replace(/"/g, '""') + '"';
+  }
+  return field;
+}
+
+function needsEscaping(field) {
+  return field.includes(';') || field.includes('"') || field.includes('\n');
 }
 
