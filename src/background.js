@@ -10,7 +10,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       break;
     case 'saveData':
       // Listen for saveData messages from popup.js
-      saveData(collectedItems);
+      const gapFillOptions = request.gapFillOptions || { fillGaps: false, defaultTask: '' };
+      saveData(collectedItems, gapFillOptions);
       collectedItems=[];
       break;
     case 'sendData':
@@ -23,15 +24,26 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   }
 });
 
-function saveData(data) {
+function saveData(data, gapFillOptions = { fillGaps: false, defaultTask: '' }) {
+  let processedData = [...data];
+  
+  // If gap filling is enabled, analyze and fill gaps
+  if (gapFillOptions.fillGaps && gapFillOptions.defaultTask) {
+    processedData = fillHourGaps(data, gapFillOptions.defaultTask);
+  }
+  
   // Add BOM for UTF-8 to ensure Excel recognizes encoding properly
   var csv = '\uFEFF';
   // Use semicolons for better Excel compatibility (especially non-US regions)
   csv += 'Time Spent;Jira Item;Entered Date\n';
   
-  data.forEach(function(row) {
+  processedData.forEach(function(row) {
+    // Format time spent to 2 decimal places with comma as decimal delimiter
+    const timeValue = parseFloat(row.timeSpent.replace(',', '.')) || 0;
+    const formattedTime = timeValue.toFixed(2).replace('.', ',');
+    
     // Escape CSV fields that contain semicolons or quotes
-    const timeSpent = escapeCSVField(row.timeSpent);
+    const timeSpent = escapeCSVField(formattedTime);
     const jiraItem = escapeCSVField(row.jiraItem + ' ' + row.description);
     const enteredDate = escapeCSVField(row.enteredDate);
     
@@ -51,6 +63,51 @@ function saveData(data) {
     saveAs: true,
     conflictAction: 'uniquify',
   });
+}
+
+function fillHourGaps(data, defaultTask) {
+  // Group data by date
+  const dataByDate = {};
+  
+  data.forEach(item => {
+    const date = item.enteredDate;
+    if (!dataByDate[date]) {
+      dataByDate[date] = [];
+    }
+    dataByDate[date].push(item);
+  });
+  
+  const processedData = [];
+  
+  // Sort dates to maintain chronological order
+  const sortedDates = Object.keys(dataByDate).sort();
+  
+  // Process each date and add gap filling records immediately after real records
+  sortedDates.forEach(date => {
+    const dayItems = dataByDate[date];
+    let totalHours = 0;
+    
+    // Add all real records for this date first
+    dayItems.forEach(item => {
+      processedData.push(item);
+      const timeValue = parseFloat(item.timeSpent.replace(',', '.')) || 0;
+      totalHours += timeValue;
+    });
+    
+    // If less than 8 hours, add gap filling record right after this date's records
+    if (totalHours < 8) {
+      const gapHours = (8 - totalHours).toFixed(2);
+      const gapRecord = {
+        timeSpent: gapHours,
+        jiraItem: defaultTask,
+        description: '',
+        enteredDate: date
+      };
+      processedData.push(gapRecord);
+    }
+  });
+  
+  return processedData;
 }
 
 function escapeCSVField(field) {

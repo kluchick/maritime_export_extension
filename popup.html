@@ -21,6 +21,13 @@
                 <label id="recordCount"></label>
                 <label>Records found</label>
             </div>
+            <div class="gap-fill-wrapper">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="fillGaps" />
+                    <label for="fillGaps">Fill gaps with text</label>
+                </div>
+                <input type="text" id="defaultTask" class="task-input" placeholder="Enter default task" disabled />
+            </div>
             <button class="fancy-button" id="saveData">Export data</button>
         </div>
         <script src="src/popup.js"></script>

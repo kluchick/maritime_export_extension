@@ -3,6 +3,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const collectButton = document.getElementById('collectData');
   const saveButton = document.getElementById('saveData');
   const recordCountLabel = document.getElementById('recordCount');
+  const fillGapsCheckbox = document.getElementById('fillGaps');
+  const defaultTaskInput = document.getElementById('defaultTask');
+
+  // Handle checkbox change to enable/disable text input
+  fillGapsCheckbox.addEventListener('change', function() {
+    defaultTaskInput.disabled = !fillGapsCheckbox.checked;
+    if (!fillGapsCheckbox.checked) {
+      defaultTaskInput.value = '';
+    }
+  });
 
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.action === 'updateRecordCount') {
@@ -30,8 +40,17 @@ document.addEventListener('DOMContentLoaded', function () {
   );
 
   saveButton.addEventListener('click', function () {
-    // Send a message to background.js
-    chrome.runtime.sendMessage({ action: 'saveData' });
+    // Get the checkbox and text input values
+    const gapFillOptions = {
+      fillGaps: fillGapsCheckbox.checked,
+      defaultTask: defaultTaskInput.value
+    };
+    
+    // Send a message to background.js with gap fill options
+    chrome.runtime.sendMessage({ 
+      action: 'saveData',
+      gapFillOptions: gapFillOptions
+    });
   });
 });
 
